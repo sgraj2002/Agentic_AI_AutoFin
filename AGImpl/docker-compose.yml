@@ -1,0 +1,33 @@
+services:
+  mysql:
+    image: mysql:8.0
+    environment:
+      MYSQL_ROOT_PASSWORD: rootpassword
+      MYSQL_DATABASE: loyalty_db
+    ports:
+      - "3307:3306"
+    volumes:
+      - ./infrastructure/mysql/init.sql:/docker-entrypoint-initdb.d/init.sql
+  localstack:
+    image: localstack/localstack
+    ports:
+      - "4566:4566"
+    environment:
+      - SERVICES=s3
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+  s3-init:
+    image: amazon/aws-cli
+    depends_on:
+      - localstack
+    environment:
+      - AWS_ACCESS_KEY_ID=test
+      - AWS_SECRET_ACCESS_KEY=test
+      - AWS_DEFAULT_REGION=us-east-1
+    entrypoint: /bin/sh -c
+    command: >
+      "
+      sleep 10;
+      aws --endpoint-url=http://localstack:4566 s3 mb s3://loyalty-bucket;
+      aws --endpoint-url=http://localstack:4566 s3 ls;
+      "

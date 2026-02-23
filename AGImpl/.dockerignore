@@ -1,0 +1,8 @@
+__pycache__
+*.pyc
+.env
+.git
+TestArtifacts
+terraform
+docker-compose.yml
+*.md

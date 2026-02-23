@@ -1,0 +1,57 @@
+# AI Agent Prompt: Auto-Financing Loyalty Program Implementation
+
+## Objective
+Build a stateful web application for a "Loyalty-Based Auto-Financing" program. The app processes user documents with multimodal AI, checks a loyalty database, and calculates a personalized APR.
+
+---
+
+## Technical Stack
+- **Backend**: FastAPI, LangGraph, Pydantic (State management).
+- **Frontend**: Streamlit (Stateful multi-stage flow).
+- **Storage**: LocalStack (simulated S3 for document storage).
+- **Database**: MySQL 8.0 (Loyalty records).
+- **AI**: Gemini 1.5 Flash (via LangChain Google GenAI).
+
+---
+
+## Implementation Tasks
+
+### Task 1: Infrastructure & Data Setup
+1. **Docker Config**: Create a `docker-compose.yml` with:
+   - **MySQL 8.0**: Map port `3307:3306` (to avoid host conflicts).
+   - **LocalStack**: Enabled for S3 service.
+   - **Initialization**: Automated `init.sql` to create `loyalty_db` with:
+     - `users` table: `id`, `name`, `ssn_last4`, `loyalty_tier` (Standard, Silver, Gold, Platinum).
+     - `applications` table: `id`, `user_id`, `income`, `final_apr`.
+     - Seed data: `('John Doe', '1234', 'Platinum', 'Member since 2020')`.
+
+### Task 2: Multi-Agent Logic (LangGraph)
+Implement a LangGraph workflow using a Pydantic `Briefcase` state:
+1. **Agent A (Screener)**: Multimodal node.
+   - Downloads document from S3 (LocalStack).
+   - Uses Gemini 1.5 Flash to extract `Full Name` and `Annual Income`.
+2. **Agent B (Miner)**: Database node.
+   - Connects to MySQL (port 3307).
+   - Matches extracted `Name` to find `Loyalty Tier`.
+3. **Service C (Calculator)**: Logic node.
+   - Takes `Base APR (6.0%)`.
+   - Deducts discount based on Tier: (Platinum: 2%, Gold: 1%, Silver: 0.5%).
+   - Returns final `Briefcase` state.
+
+### Task 3: API & Streamlit UI
+1. **FastAPI Backend**:
+   - `/upload` endpoint: Saves file to S3.
+   - `/process` endpoint: Triggers LangGraph.
+   - `/apply` endpoint: Finalizes request.
+2. **Streamlit Logic**:
+   - **Stage 1 (Identity)**: Name & SSN entry.
+   - **Stage 2 (Consent)**: AI processing opt-in.
+   - **Stage 3 (Upload)**: Drag-and-drop paystub -> S3 upload -> Agent trigger.
+   - **Stage 4 (Interaction)**: Display a premium "Loyalty Reward Card" with the calculated APR and a "Lock Offer" button.
+
+---
+
+## Key Constraints
+- **Ports**: Use Port 8001 for FastAPI and Port 8510 for Streamlit (to avoid zombie process overlaps).
+- **Error Handling**: Implement robust `try-except` in nodes with clear logging (flush=True) and fallbacks.
+- **Environment**: Use `.env` for `GEMINI_API_KEY`.
