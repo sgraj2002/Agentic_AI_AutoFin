@@ -139,7 +139,8 @@ The application features **Auto-Initialization** to save you time:
 - **Database**: Local MySQL on port `3307`.
 
 ### **Mode B: AWS Production (Current Live State)**
-- **Infrastructure**: Managed via Terraform in `AGImpl/terraform/`.
+- **Infrastructure**: Managed via Terraform. [See Terraform Guide](file:///c:/Users/Agentic_AI_AutoFin/AGScripts/TERRAFORM_GUIDE.md).
+- **Manual Setup**: [See Console Setup Guide](file:///c:/Users/Agentic_AI_AutoFin/AGScripts/CONSOLE_SETUP_GUIDE.md).
 - **Compute**: AWS ECS Fargate (Cluster: `autofin-loyalty-cluster`).
 - **Database**: AWS RDS MySQL (`autofin-loyalty-db`).
 - **Storage**: AWS S3 (`autofin-loyalty-bucket-173256371433`).
